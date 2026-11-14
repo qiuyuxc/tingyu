@@ -10,15 +10,16 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player as Media3Player
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import java.io.File
 
-/**
- * High-resolution platform streams keep float PCM; local files use the framework player.
- */
+/** Local files and platform streams share high-resolution float PCM playback. */
 @androidx.annotation.OptIn(UnstableApi::class)
 internal class PlaybackAudio {
     interface Listener {
@@ -69,11 +70,19 @@ internal class PlaybackAudio {
         }
     }
 
-    fun setDataSource(path: String) {
+    fun setDataSource(context: Context, path: String) {
         failure = null
-        modern = false
-        native.setDataSource(path)
-        active = true
+        if (Build.VERSION.SDK_INT < 27) {
+            modern = false
+            native.setDataSource(path)
+            active = true
+            return
+        }
+        setProgressiveSource(
+            context,
+            Uri.fromFile(File(path)),
+            DefaultDataSource.Factory(context.applicationContext),
+        )
     }
 
     fun setDataSource(context: Context, uri: Uri, headers: Map<String, String>) {
@@ -84,9 +93,19 @@ internal class PlaybackAudio {
             active = true
             return
         }
+        val http =
+            DefaultHttpDataSource.Factory()
+                .setDefaultRequestProperties(headers)
+                .setConnectTimeoutMs(15000)
+                .setReadTimeoutMs(15000)
+        setProgressiveSource(context, uri, http)
+    }
+
+    private fun setProgressiveSource(context: Context, uri: Uri, source: DataSource.Factory) {
+        failure = null
         modern = true
         active = true
-        val request = generation
+        val request = ++generation
         val player =
             streaming ?: createStreamingPlayer(context.applicationContext).also { streaming = it }
         val callbacks =
@@ -123,17 +142,13 @@ internal class PlaybackAudio {
                     }
                 }
             }
+        streamingListener?.let(player::removeListener)
         streamingListener = callbacks
         player.addListener(callbacks)
         player.volume = volume
-        val http =
-            DefaultHttpDataSource.Factory()
-                .setDefaultRequestProperties(headers)
-                .setConnectTimeoutMs(15000)
-                .setReadTimeoutMs(15000)
         val item = MediaItem.Builder().setUri(uri).setMediaId(request.toString()).build()
         player.setMediaSource(
-            ProgressiveMediaSource.Factory(http, FlacExtractorsFactory()).createMediaSource(item)
+            ProgressiveMediaSource.Factory(source, FlacExtractorsFactory()).createMediaSource(item)
         )
     }
 

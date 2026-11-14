@@ -16,6 +16,9 @@
 支持 Android 7.0（API 24）及以上版本；液态玻璃导航在 Android 13 及以上启用。
 本地文件支持 FLAC、MP3、M4A、AAC、OGG、Opus、WAV，实际可播放编码取决于设备。
 
+0.12.8 修复高解析本地音乐仍使用旧播放路径的问题。Android 8.1 及以上的本地与
+在线播放共用浮点音频链路，并读取已有 FLAC 的响度信息，保留原始音频内容。
+
 ## 使用
 
 在“我的 → 设置 → 平台账号”连接账号，也可以从曲库的平台入口扫码登录。
@@ -34,7 +37,7 @@ Gradle Wrapper 固定为 9.7.1，Android Gradle Plugin 为 9.3.2，Compose 编�
 ```bash
 export ANDROID_HOME=/path/to/android-sdk
 cd android
-./build.sh testDebugUnitTest lintDebug
+./build.sh
 ```
 
 脚本生成 `android/tingyu-open-source.apk`，使用 Android 调试签名。
@@ -47,9 +50,6 @@ Android Studio 也可以直接打开 `android/` 目录。
 cd android
 ./gradlew testDebugUnitTest lintDebug
 ```
-
-在 ARM Linux 或 Termux 环境，脚本可使用系统 Gradle 与 AAPT2；
-也可通过 `ANDROID_AAPT2_OVERRIDE` 指定 AAPT2 路径。
 
 ## 开发与发布
 
@@ -66,3 +66,9 @@ GitHub Actions 会运行单元测试、Lint 和 APK 构建。
 本项目原创代码采用 [GNU GPLv3](LICENSE)（`GPL-3.0-only`），版权说明见 [NOTICE](NOTICE)。
 第三方组件保留各自许可证，来源、版本和修改说明见
 [第三方许可说明](android/THIRD_PARTY.md)。应用关于页可离线查看协议全文与第三方许可。
+
+ChunkSeal 为听屿集成提供 [专项 GPLv3 授权](licenses/ChunkSeal-Tingyu-Permission.md)，
+可供后续集成使用，主项目继续采用 GPL-3.0-only。该授权保留原版权，并给予 GPL
+版本的下游完整的修改、分发与复用权利。原项目声明见
+[ChunkSeal NOTICE](licenses/ChunkSeal-NOTICE.txt)。
+关于页的「第三方致谢 → ChunkSeal v1」提供版权、专项授权与上游 AGPLv3 原文的离线查看入口。

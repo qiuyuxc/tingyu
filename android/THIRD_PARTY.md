@@ -12,6 +12,19 @@ as `assets/licenses/ThirdParty-NOTICE.txt`, alongside the existing third-party l
 The GPLv3 text is the unmodified GNU publication at
 https://www.gnu.org/licenses/gpl-3.0.txt.
 
+# ChunkSeal acknowledgement and permission
+
+The About page provides an offline acknowledgement for the ChunkSeal v1 protocol
+project and its additional GPLv3 permission for Tingyu. ChunkSeal retains
+`Copyright (C) 2026 ChunkSeal contributors` and its upstream `AGPL-3.0-only`
+notice. The Tingyu project remains `GPL-3.0-only`.
+
+The About page includes `assets/licenses/ChunkSeal-NOTICE.txt`,
+`assets/licenses/ChunkSeal-Tingyu-Permission.txt` and the unmodified upstream
+license in `assets/licenses/AGPL-3.0.txt`. The notice and permission match
+the copies in the repository's `licenses/` directory. The permission is
+recorded for future integration into the public edition.
+
 # AndroidX, Kotlin and Java compatibility
 
 AndroidX, Jetpack Compose, the Kotlin standard library, JetBrains annotations
@@ -103,7 +116,8 @@ Version 0.10.0 uses `androidx.media3:media3-exoplayer:1.11.1` and its Media3
 dependencies under Apache License 2.0. Android 8.1 and newer use its progressive
 extractors, software-preferred audio decoders and float PCM output for platform
 streams. The sources were checked against the published 1.11.1 source archives.
-The libraries are unmodified. Local files and Android 7–8.0 retain
+The libraries are unmodified. Version 0.12.8 also uses the same float-capable
+Media3 chain for local files on Android 8.1 and newer. Android 7–8.0 retains
 the framework MediaPlayer path.
 
 The upstream license is bundled as `assets/licenses/Media3.txt`.

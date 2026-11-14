@@ -1,0 +1,33 @@
+{
+  "version": "0.12.8",
+  "version_code": 25,
+  "application_id": "com.qiuyuxc.tingyu.opensource",
+  "minimum_android_api": 24,
+  "target_sdk": 35,
+  "compile_sdk": 37,
+  "debuggable": false,
+  "signature_verified": true,
+  "certificate_sha256": "884b58562d8a7cdf46f630c5c65ced9135163336bbfffec3b4a9548f7ea32cbc",
+  "apk": {
+    "file": "tingyu-0.12.8.apk",
+    "bytes": 11093745,
+    "sha256": "cf9134010b18837d92e32a2e7e62ad2aaf2ff56ed2e0135014fa57039a462014"
+  },
+  "zip_crc_verified": true,
+  "native_libraries_aligned_16kb": [
+    "lib/arm64-v8a/libandroidx.graphics.path.so",
+    "lib/armeabi-v7a/libandroidx.graphics.path.so",
+    "lib/x86/libandroidx.graphics.path.so",
+    "lib/x86_64/libandroidx.graphics.path.so"
+  ],
+  "license_assets_verified": 17,
+  "launcher_pngs_verified": 10,
+  "local_playback_code_present": true,
+  "public_feature_scope_verified": true,
+  "project_license": "GPL-3.0-only",
+  "regression_tests": "not run locally, per user instruction",
+  "lint": "not run locally, per user instruction",
+  "device_validation": "local playback fix has user acceptance; this public package was not separately tested on device",
+  "chunkseal_acknowledgement_verified": true,
+  "upstream_agpl_text_unmodified": true
+}

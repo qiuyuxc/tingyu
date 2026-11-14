@@ -26,6 +26,11 @@ internal object AboutPage {
 
     private val thirdPartyLicenses =
         listOf(
+            LicenseEntry(
+                "ChunkSeal v1",
+                "协议项目致谢 · AGPLv3 与听屿专项授权",
+                listOf("ChunkSeal-NOTICE.txt", "ChunkSeal-Tingyu-Permission.txt", "AGPL-3.0.txt"),
+            ),
             LicenseEntry("MIUIX 0.9.4", "界面组件 · Apache 2.0", listOf("Miuix.txt")),
             LicenseEntry(
                 "AndroidLiquidGlass",
@@ -37,7 +42,7 @@ internal object AboutPage {
                 "歌词显示 · Apache 2.0",
                 listOf("LrcView-NOTICE.txt", "LrcView.txt"),
             ),
-            LicenseEntry("Media3 1.11.1", "平台音频播放 · Apache 2.0", listOf("Media3.txt")),
+            LicenseEntry("Media3 1.11.1", "本地与在线音频播放 · Apache 2.0", listOf("Media3.txt")),
             LicenseEntry("ZXing 3.5.3", "二维码生成 · Apache 2.0 / BSD", listOf("ZXing.txt")),
             LicenseEntry(
                 "AndroidX 与 Kotlin",
@@ -58,9 +63,7 @@ internal object AboutPage {
                 section(context, "听歌与收藏").apply {
                     addView(description(context, "自己的曲库", "播放本地与在线音乐，收藏歌曲、整理歌单，查看听歌记录与排行。"))
                     addView(description(context, "发现音乐", "连接网易云音乐与酷狗概念版，听推荐、找歌曲，同步歌单，也可以参与歌曲评论。"))
-                    addView(
-                        description(context, "本地音乐", "读取音频标签、专辑封面与本地歌词，将收藏导出为 M3U 歌单。")
-                    )
+                    addView(description(context, "本地音乐", "读取音频标签、专辑封面与本地歌词，将收藏导出为 M3U 歌单。"))
                 }
             )
             addView(

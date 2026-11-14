@@ -1,0 +1,19 @@
+ChunkSeal
+SPDX-License-Identifier: AGPL-3.0-only
+
+Copyright (C) 2026 ChunkSeal contributors
+
+ChunkSeal is a chunked authenticated encryption container. Its format
+identifier is CSEA.
+
+Project code and documentation are licensed under version 3 of the GNU
+Affero General Public License. The complete license is in LICENSE.
+
+The original copyright holders additionally permit GPLv3 integration in
+the Tingyu music player under ADDITIONAL-PERMISSION.md. GPLv3 copies
+conveyed under that permission grant all recipients the full GPL rights.
+This permission does not assign copyright or identify account ownership.
+
+Python uses the external cryptography package and Java uses the JDK's
+cryptographic providers. These dependencies retain their own licenses;
+their source and binaries are not bundled in this repository.

@@ -12,11 +12,12 @@ android {
     buildToolsVersion = "37.0.0"
 
     defaultConfig {
-        applicationId = providers.gradleProperty("applicationId").getOrElse("com.qiuyuxc.tingyu.opensource")
+        applicationId =
+            providers.gradleProperty("applicationId").getOrElse("com.qiuyuxc.tingyu.opensource")
         minSdk = 24
         targetSdk = 35
-        versionCode = 23
-        versionName = "0.12.6"
+        versionCode = 25
+        versionName = "0.12.8"
     }
 
     sourceSets {

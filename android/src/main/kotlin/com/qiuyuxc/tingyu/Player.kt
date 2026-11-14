@@ -145,6 +145,9 @@ class Player private constructor() {
                     MainActivity.diagLine(
                         "播放出错: what=$what extra=$extra; ${failure?.diagnostic.orEmpty()}"
                     )
+                    try {
+                        mp.reset()
+                    } catch (ignored: IllegalStateException) {}
                     notifyChanged()
                 }
             }
@@ -653,7 +656,9 @@ class Player private constructor() {
                 }
                 return
             } else {
-                mp.setDataSource(s.file!!.getAbsolutePath())
+                playbackGain.setTrackGain(AudioLoudness.fromFile(s.file))
+                applyVolume()
+                mp.setDataSource(requireNotNull(appCtx), s.file!!.getAbsolutePath())
                 MainActivity.diagLine("播放: 本地文件 " + s.file!!.getName())
             }
             isLoading = true
@@ -779,6 +784,5 @@ class Player private constructor() {
             ListeningHistory.init(appCtx!!)
             PlatformArtwork.init(requireNotNull(appCtx))
         }
-
     }
 }
