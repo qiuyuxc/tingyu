@@ -1,0 +1,10 @@
+Java standard-library compatibility
+
+Component: com.android.tools:desugar_jdk_libs:2.1.5
+Upstream: https://github.com/google/desugar_jdk_libs
+License: GNU General Public License, version 2, with the Classpath Exception
+License source: https://github.com/google/desugar_jdk_libs/blob/master/LICENSE
+
+The unmodified library supplies Java standard-library compatibility on older
+Android versions. Copyright remains with the upstream authors and contributors.
+Its complete original license and Classpath Exception are in Desugar-JDK.txt.

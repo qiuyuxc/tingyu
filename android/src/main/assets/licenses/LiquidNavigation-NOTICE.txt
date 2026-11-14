@@ -1,0 +1,32 @@
+Liquid navigation components
+
+Copyright 2026, compose-miuix-ui contributors.
+Adapted from Kyant0/AndroidLiquidGlass (Kyant), Apache License 2.0.
+
+Source: compose-miuix-ui/miuix 0.9.4, example/shared/src/commonMain/kotlin/component/
+https://github.com/compose-miuix-ui/miuix/tree/v0.9.4/example/shared/src/commonMain/kotlin/component
+https://github.com/Kyant0/AndroidLiquidGlass
+
+Files adapted into com.qiuyuxc.tingyu.navigation:
+LiquidGlassNavigationBar.kt, DampedDragAnimation.kt, InteractiveHighlight.kt,
+CombinedBackdrop.kt, InnerShadow.kt, Lens.kt and Vibrancy.kt.
+
+Modified for Tingyu on 2026-10-28: package integration, app navigation items,
+theme lookup, font-scaled sizing, safe-area handling and accessible navigation.
+The effect implementation is only entered on Android 13 and later.
+
+Further modified in 0.4.0: restore full upstream backdrop recording and tinted-tab
+sampling, gravity-driven highlights, press spot, moving refraction with dispersion,
+inner shadow, rubber-band movement and velocity deformation. Font-scaled heights
+and outer safe insets remain. Hidden sampling passes do not duplicate keyboard or
+accessibility targets. Drag jobs are coalesced and animation velocity is read directly.
+
+Further modified in 0.4.1: pointer movement updates the indicator and panel offset
+directly. Spring animations run after release, retaining gesture velocity and the
+full glass effects. Cancelled gestures restore the previous selected tab.
+
+This is the Apache-licensed upstream example also referenced by KernelSU's
+FloatingBottomBar. KernelSU source was inspected as a visual/integration reference;
+its application implementation was not copied.
+
+Apache License 2.0 is provided in Miuix.txt and AndroidLiquidGlass.txt.

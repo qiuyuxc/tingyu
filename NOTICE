@@ -1,0 +1,11 @@
+听屿 / Tingyu
+Copyright (C) 2026 Tingyu contributors
+SPDX-License-Identifier: GPL-3.0-only
+
+Original project code is licensed under version 3 of the GNU General
+Public License. The complete license is in LICENSE.
+
+Third-party code, libraries and assets retain their original licenses and
+copyright notices. Those components are not relicensed by this notice.
+Their origins, local modifications and license files are documented in
+android/THIRD_PARTY.md and android/src/main/assets/licenses/.

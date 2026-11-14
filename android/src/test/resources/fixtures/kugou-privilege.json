@@ -1,0 +1,20 @@
+{
+  "status": 1,
+  "error_code": 0,
+  "data": [
+    {
+      "hash": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "album_id": "12",
+      "album_audio_id": 34,
+      "privilege": 10,
+      "status": 0,
+      "pay_type": 3,
+      "info": {"image": "http://imge.kugou.com/stdmusic/{size}/cover-one.jpg"},
+      "relate_goods": [
+        {"quality": "128", "level": 2, "privilege": 10, "status": 0, "pay_type": 3},
+        {"quality": "320", "level": 4, "privilege": 10, "status": 0, "pay_type": 3},
+        {"quality": "flac", "level": 5, "privilege": 10, "status": 0, "pay_type": 3}
+      ]
+    }
+  ]
+}

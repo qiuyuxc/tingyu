@@ -1,0 +1,22 @@
+# Android build output and local SDK configuration
+**/build/
+**/.gradle/
+**/.kotlin/
+android/local.properties
+*.apk
+*.apk.idsig
+*.aab
+
+# Local signing material and account configuration
+*.keystore
+*.jks
+keystore.properties
+.env
+.env.*
+
+# Editor and interpreter files
+.idea/
+*.iml
+.DS_Store
+__pycache__/
+*.pyc

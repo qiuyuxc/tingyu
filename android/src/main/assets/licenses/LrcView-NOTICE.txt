@@ -1,0 +1,9 @@
+LrcView by wangchenyan
+Copyright (C) 2017 wangchenyan
+Licensed under Apache License 2.0.
+Upstream: https://github.com/wangchenyan/LrcView
+Pinned commit: 3df3232531d9bf9d9340b88fb1805b7096cd03a7
+LrcEntry, LrcUtils and view resources are unchanged.
+LrcView is locally modified in 0.9.0 to add opt-in seek-on-release handling,
+including drag cancellation, disabled inertia and a hidden separate play marker.
+The local Android library uses the app build toolchain and omits optional manifest permissions.

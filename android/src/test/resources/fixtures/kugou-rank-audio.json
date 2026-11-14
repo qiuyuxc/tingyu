@@ -1,0 +1,24 @@
+{
+  "status": 1,
+  "error_code": 0,
+  "data": {
+    "total": 500,
+    "songlist": [
+      {
+        "songname": "示例音乐一",
+        "author_name": "示例艺人",
+        "album_audio_id": 34,
+        "album_info": {"album_id": 12, "album_name": "示例专辑"},
+        "audio_info": {"hash_128": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "duration_128": 236000},
+        "trans_param": {"union_cover": "http://imge.kugou.com/stdmusic/{size}/cover-one.jpg"}
+      },
+      {
+        "songname": "示例音乐二",
+        "author_name": "另一位艺人",
+        "album_audio_id": 35,
+        "audio_info": {"hash_128": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", "duration_128": 218000},
+        "trans_param": {"union_cover": "http://imge.kugou.com/stdmusic/{size}/cover-two.jpg"}
+      }
+    ]
+  }
+}

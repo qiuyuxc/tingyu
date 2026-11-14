@@ -1,0 +1,15 @@
+AndroidX, Jetpack Compose and Kotlin runtime components
+
+AndroidX and Jetpack Compose are Android Open Source Project libraries.
+Upstream: https://github.com/androidx/androidx
+
+Kotlin standard-library and JetBrains annotation components are published by JetBrains.
+Upstream: https://github.com/JetBrains/kotlin
+Upstream: https://github.com/JetBrains/java-annotations
+
+kotlinx.coroutines is published by the Kotlin project.
+Upstream: https://github.com/Kotlin/kotlinx.coroutines
+
+These unmodified libraries use the Apache License, Version 2.0, as declared in
+their published Maven license metadata. Copyright remains with the respective
+upstream authors and contributors. The complete license is in Apache-2.0.txt.

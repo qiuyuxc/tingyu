@@ -1,0 +1,19 @@
+{
+  "status": 1,
+  "error_code": 0,
+  "data": [
+    {
+      "status": 1,
+      "name": "听友喜欢的音乐",
+      "global_collection_id": "collection_3_42_2_0",
+      "list_create_userid": 42,
+      "list_create_listid": 2,
+      "listid": 2,
+      "type": 0,
+      "is_def": 2,
+      "count": 147,
+      "is_pri": 0,
+      "list_ver": 287
+    }
+  ]
+}

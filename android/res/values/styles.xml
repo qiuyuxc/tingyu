@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Window and native input colors mirror the MIUIX palettes.
+     MainActivity resolves the saved theme before the first frame. -->
+<resources>
+    <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="tm_canvas">#F4F6F3</item>
+        <item name="tm_surface">#FFFFFF</item>
+        <item name="tm_text">#29312C</item>
+        <item name="tm_muted">#626D66</item>
+        <item name="tm_border">#D8E0D6</item>
+        <item name="tm_accent">#3F7058</item>
+        <item name="tm_accent_text">#FFFFFF</item>
+        <item name="tm_error">#E94634</item>
+        <item name="android:windowBackground">?attr/tm_canvas</item>
+        <item name="android:colorBackground">?attr/tm_canvas</item>
+        <item name="android:textColorPrimary">?attr/tm_text</item>
+        <item name="android:textColorHint">?attr/tm_muted</item>
+        <item name="android:colorAccent">?attr/tm_accent</item>
+        <item name="android:statusBarColor">?attr/tm_canvas</item>
+        <item name="android:navigationBarColor">?attr/tm_canvas</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <!-- 底部弹层: 用 dialog 窗口而不是页面里的 View —— 它要压暗背景、接管返回键,
+         并且要盖在当前页面之上。 -->
+    <style name="SheetDialog" parent="android:Theme.Material.Light.Dialog">
+        <item name="android:colorAccent">?attr/tm_accent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowAnimationStyle">@style/SheetDialogAnimation</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+    </style>
+
+    <style name="SheetDialog.Dark" parent="android:Theme.Material.Dialog">
+        <item name="android:colorAccent">?attr/tm_accent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowAnimationStyle">@style/SheetDialogAnimation</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+    </style>
+
+    <style name="SheetDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/sheet_up</item>
+        <item name="android:windowExitAnimation">@anim/sheet_down</item>
+    </style>
+
+    <style name="AppTheme.Dark" parent="android:Theme.Material.NoActionBar">
+        <item name="tm_canvas">#191B1A</item>
+        <item name="tm_surface">#262927</item>
+        <item name="tm_text">#EEF0EE</item>
+        <item name="tm_muted">#B4BAB6</item>
+        <item name="tm_border">#3C4C41</item>
+        <item name="tm_accent">#9ACBB0</item>
+        <item name="tm_accent_text">#191B1A</item>
+        <item name="tm_error">#F12522</item>
+        <item name="android:windowBackground">?attr/tm_canvas</item>
+        <item name="android:colorBackground">?attr/tm_canvas</item>
+        <item name="android:textColorPrimary">?attr/tm_text</item>
+        <item name="android:textColorHint">?attr/tm_muted</item>
+        <item name="android:colorAccent">?attr/tm_accent</item>
+        <item name="android:statusBarColor">?attr/tm_canvas</item>
+        <item name="android:navigationBarColor">?attr/tm_canvas</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="AppTheme.Mono" parent="AppTheme">
+        <item name="tm_border">#DDDDDD</item>
+        <item name="tm_canvas">#F4F4F4</item><item name="tm_surface">#FFFFFF</item>
+        <item name="tm_text">#2D2D2D</item><item name="tm_muted">#686868</item>
+        <item name="tm_accent">#525252</item>
+    </style>
+    <style name="AppTheme.Blue" parent="AppTheme">
+        <item name="tm_canvas">#F3F5F9</item><item name="tm_text">#282D36</item>
+        <item name="tm_muted">#636D80</item><item name="tm_accent">#42679B</item>
+    </style>
+    <style name="AppTheme.Dark.Mono" parent="AppTheme.Dark">
+        <item name="tm_border">#333333</item>
+        <item name="tm_canvas">#191919</item><item name="tm_surface">#262626</item>
+        <item name="tm_text">#ECECEC</item><item name="tm_muted">#B4B4B4</item>
+        <item name="tm_accent">#C7C7C7</item><item name="tm_accent_text">#191919</item>
+    </style>
+    <style name="AppTheme.Dark.Blue" parent="AppTheme.Dark">
+        <item name="tm_canvas">#171A20</item><item name="tm_surface">#242830</item>
+        <item name="tm_text">#EEF0EE</item><item name="tm_muted">#B4BAB6</item>
+        <item name="tm_accent">#9ABDED</item><item name="tm_accent_text">#171A20</item>
+    </style>
+</resources>
