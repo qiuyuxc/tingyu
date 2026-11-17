@@ -70,6 +70,8 @@ cd android
 参与开发见 [CONTRIBUTING.md](CONTRIBUTING.md)，发布步骤见 [发布说明](docs/RELEASING.md)。
 GitHub Actions 会运行单元测试、Lint 和 APK 构建。
 本次自动检查结果见 [验证记录](android/VALIDATION.md)。
+正式包可用 `android/tools/verify-release.py` 核对签名、版本、内置许可和源码 ZIP；
+用法见发布说明。
 
 ## 协议
 

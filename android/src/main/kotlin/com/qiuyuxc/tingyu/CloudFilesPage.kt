@@ -16,9 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.runInterruptible
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /** The connected directory contains original files and shares the library's navigation. */
@@ -83,7 +81,7 @@ internal class CloudFilesPage(private val act: MainActivity, state: Bundle? = nu
             loading = true
             try {
                 val loaded =
-                    runInterruptible(Dispatchers.IO) {
+                    storageIo {
                         val storage = Cloud.backend(act)
                         ensureActive()
                         storage

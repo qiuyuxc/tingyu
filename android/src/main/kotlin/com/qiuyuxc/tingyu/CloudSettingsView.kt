@@ -8,9 +8,7 @@ import android.widget.LinearLayout
 import androidx.activity.ComponentDialog
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /** Cloud connection settings using the same preference controls as the local library. */
 internal class CloudSettingsView(private val act: MainActivity) {
@@ -115,7 +113,7 @@ internal class CloudSettingsView(private val act: MainActivity) {
                             act.lifecycleScope.launch {
                                 try {
                                     val count =
-                                        withContext(Dispatchers.IO) {
+                                        storageIo {
                                             Cloud.backend(act).list().size
                                         }
                                     if (configuration == Cloud.configuration(act))

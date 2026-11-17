@@ -9,6 +9,47 @@ import java.net.URL
 import java.net.URLEncoder
 
 internal object StorageHttp {
+    private val currentRequests = ThreadLocal<Requests>()
+
+    /** Owns connections for one cancellable operation, including its pagination requests. */
+    class Requests {
+        private val connections = HashSet<HttpURLConnection>()
+        private var cancelled = false
+
+        internal fun register(connection: HttpURLConnection) {
+            synchronized(this) {
+                if (cancelled) {
+                    connection.disconnect()
+                    throw IOException("操作已取消")
+                }
+                connections += connection
+            }
+        }
+
+        internal fun release(connection: HttpURLConnection) {
+            synchronized(this) { connections.remove(connection) }
+        }
+
+        fun <T> run(block: () -> T): T {
+            val previous = currentRequests.get()
+            currentRequests.set(this)
+            try {
+                return block()
+            } finally {
+                if (previous == null) currentRequests.remove() else currentRequests.set(previous)
+            }
+        }
+
+        fun cancel() {
+            val active = synchronized(this) {
+                cancelled = true
+                connections.toList().also { connections.clear() }
+            }
+            active.forEach { it.disconnect() }
+        }
+
+    }
+
     fun encode(value: String): String =
         URLEncoder.encode(value, "UTF-8")
             .replace("+", "%20")
@@ -35,6 +76,15 @@ internal object StorageHttp {
             readTimeout = if (method == "PUT") 600_000 else 30_000
             instanceFollowRedirects = method == "GET" || method == "HEAD"
             setRequestProperty("User-Agent", "Tingyu")
+            currentRequests.get()?.register(this)
+        }
+    }
+
+    fun disconnect(connection: HttpURLConnection) {
+        try {
+            connection.disconnect()
+        } finally {
+            currentRequests.get()?.release(connection)
         }
     }
 

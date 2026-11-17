@@ -45,7 +45,7 @@ class HttpBackend(baseUrl: String) : Storage {
                 }
                 .distinct()
         } finally {
-            connection.disconnect()
+            StorageHttp.disconnect(connection)
         }
     }
 
@@ -65,7 +65,7 @@ class HttpBackend(baseUrl: String) : Storage {
         try {
             return StorageHttp.size(connection)
         } finally {
-            connection.disconnect()
+            StorageHttp.disconnect(connection)
         }
     }
 
@@ -82,7 +82,7 @@ class HttpBackend(baseUrl: String) : Storage {
             StorageHttp.requireSuccess(connection, "检查云端文件失败")
             return true
         } finally {
-            connection.disconnect()
+            StorageHttp.disconnect(connection)
         }
     }
 
@@ -96,21 +96,31 @@ class HttpBackend(baseUrl: String) : Storage {
         try {
             return StorageHttp.readRange(connection, offset, length)
         } finally {
-            connection.disconnect()
+            StorageHttp.disconnect(connection)
         }
     }
 
     override fun upload(path: String, local: File, progress: Storage.UploadProgress?) {
+        put(path, local, progress, onlyIfAbsent = true)
+    }
+
+    private fun put(
+        path: String,
+        local: File,
+        progress: Storage.UploadProgress? = null,
+        onlyIfAbsent: Boolean,
+    ) {
         val connection =
             StorageHttp.open(downloadUrl(path), "PUT").apply {
                 setRequestProperty("Content-Type", "application/octet-stream")
+                if (onlyIfAbsent) setRequestProperty("If-None-Match", "*")
             }
         try {
             StorageHttp.writeFile(connection, local, progress)
             StorageHttp.requireSuccess(connection, "上传失败")
             connection.inputStream.close()
         } finally {
-            connection.disconnect()
+            StorageHttp.disconnect(connection)
         }
     }
 
@@ -133,7 +143,7 @@ class HttpBackend(baseUrl: String) : Storage {
             val temporary = File.createTempFile("tingyu-index-", ".json")
             try {
                 temporary.writeText(JSONArray(names).toString(), Charsets.UTF_8)
-                upload("index.json", temporary)
+                put("index.json", temporary, onlyIfAbsent = false)
             } finally {
                 temporary.delete()
             }

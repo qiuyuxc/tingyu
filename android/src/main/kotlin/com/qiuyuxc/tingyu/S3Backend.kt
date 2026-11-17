@@ -103,7 +103,7 @@ class S3Backend(
                     StorageHttp.requireSuccess(connection, "列目录失败")
                     StorageHttp.body(connection.inputStream)
                 } finally {
-                    connection.disconnect()
+                    StorageHttp.disconnect(connection)
                 }
             val factory =
                 DocumentBuilderFactory.newInstance().apply {
@@ -170,7 +170,7 @@ class S3Backend(
         return try {
             StorageHttp.size(connection)
         } finally {
-            connection.disconnect()
+            StorageHttp.disconnect(connection)
         }
     }
 
@@ -181,7 +181,7 @@ class S3Backend(
             StorageHttp.requireSuccess(connection, "检查云端文件失败")
             return true
         } finally {
-            connection.disconnect()
+            StorageHttp.disconnect(connection)
         }
     }
 
@@ -200,10 +200,10 @@ class S3Backend(
                 publicError.addSuppressed(signedError)
                 throw publicError
             } finally {
-                public.disconnect()
+                StorageHttp.disconnect(public)
             }
         } finally {
-            connection.disconnect()
+            StorageHttp.disconnect(connection)
         }
     }
 
@@ -232,7 +232,7 @@ class S3Backend(
             StorageHttp.requireSuccess(connection, "上传失败")
             connection.inputStream.close()
         } finally {
-            connection.disconnect()
+            StorageHttp.disconnect(connection)
         }
     }
 
@@ -244,7 +244,7 @@ class S3Backend(
             StorageHttp.requireSuccess(connection, "删除失败")
             connection.inputStream.close()
         } finally {
-            connection.disconnect()
+            StorageHttp.disconnect(connection)
         }
     }
 

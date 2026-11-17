@@ -7,6 +7,11 @@ import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.URLDecoder
 import java.util.Date
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
@@ -154,11 +159,13 @@ class FileStorageTest {
                 path == "/index.json" && exchange.requestMethod == "GET" ->
                     respond(exchange, 200, index)
                 path == "/index.json" && exchange.requestMethod == "PUT" -> {
+                    assertNull(exchange.requestHeaders.getFirst("If-None-Match"))
                     index = exchange.requestBody.use { it.readBytes().toString(Charsets.UTF_8) }
                     respond(exchange, 200, "")
                 }
                 exchange.requestMethod == "PUT" -> {
                     assertEquals("/new +.flac", path)
+                    assertEquals("*", exchange.requestHeaders.getFirst("If-None-Match"))
                     uploaded = exchange.requestBody.use { it.readBytes() }
                     respond(exchange, 200, "")
                 }
@@ -234,7 +241,11 @@ class FileStorageTest {
                 }
                 "/api/fs/put" -> {
                     uploadPath =
-                        URLDecoder.decode(exchange.requestHeaders.getFirst("File-Path"), "UTF-8")
+                        // OpenList uses url.PathUnescape, which preserves literal plus signs.
+                        URLDecoder.decode(
+                            exchange.requestHeaders.getFirst("File-Path").replace("+", "%2B"),
+                            "UTF-8",
+                        )
                     uploaded = exchange.requestBody.use { it.readBytes() }
                     respond(exchange, 200, """{"code":200,"message":"success"}""")
                 }
@@ -248,6 +259,85 @@ class FileStorageTest {
         }
         assertEquals("/音乐/歌 +.mp3", uploadPath)
         assertArrayEquals(byteArrayOf(8, 9), uploaded)
+    }
+
+    @Test
+    fun httpRefusesOverwriteWhenAFileAppearsAfterTheInitialCheck() {
+        var writes = 0
+        server({ exchange ->
+            when (exchange.requestMethod) {
+                "GET" -> respond(exchange, 404, "")
+                "PUT" -> {
+                    exchange.requestBody.use { it.readBytes() }
+                    if (exchange.requestHeaders.getFirst("If-None-Match") == "*") {
+                        respond(exchange, 412, "file exists")
+                    } else {
+                        writes++
+                        respond(exchange, 200, "")
+                    }
+                }
+            }
+        }) { base ->
+            temporary(byteArrayOf(1, 2, 3)) { file ->
+                assertThrows(IOException::class.java) {
+                    FileUploader.upload(HttpBackend(base), file)
+                }
+            }
+        }
+        assertEquals(0, writes)
+    }
+
+    @Test
+    fun openListRefusesOverwriteWhenAFileAppearsAfterTheInitialCheck() {
+        var writes = 0
+        server({ exchange ->
+            exchange.requestBody.use { it.readBytes() }
+            when (exchange.requestURI.path) {
+                "/api/fs/list" ->
+                    respond(exchange, 200, """{"code":200,"data":{"total":0,"content":[]}}""")
+                "/api/fs/put" -> {
+                    if (exchange.requestHeaders.getFirst("Overwrite") == "false") {
+                        respond(exchange, 200, """{"code":403,"message":"file exists"}""")
+                    } else {
+                        writes++
+                        respond(exchange, 200, """{"code":200,"message":"success"}""")
+                    }
+                }
+                else -> respond(exchange, 404, "")
+            }
+        }) { base ->
+            temporary(byteArrayOf(1, 2, 3)) { file ->
+                assertThrows(IOException::class.java) {
+                    FileUploader.upload(OpenListBackend(OpenList(base), "/music"), file)
+                }
+            }
+        }
+        assertEquals(0, writes)
+    }
+
+    @Test(timeout = 10_000)
+    fun cancellingStorageOperationDisconnectsPendingResponse() = runBlocking {
+        val received = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        server({ exchange ->
+            received.countDown()
+            release.await(5, TimeUnit.SECONDS)
+            respond(exchange, 200, "original bytes")
+        }) { base ->
+            val finished = CountDownLatch(1)
+            val worker = launch(Dispatchers.Default) {
+                storageIo { HttpBackend(base).readRange("track.flac", 0, 4) }
+            }
+            worker.invokeOnCompletion { finished.countDown() }
+            try {
+                assertTrue("Request did not reach the server", received.await(3, TimeUnit.SECONDS))
+                worker.cancel()
+                assertTrue("Cancelled request kept waiting for the server", finished.await(2, TimeUnit.SECONDS))
+            } finally {
+                release.countDown()
+                worker.cancel()
+            }
+        }
     }
 
     @Test
@@ -296,13 +386,15 @@ class FileStorageTest {
 
     @Test
     fun openListApiFailureIsNotReportedAsUploadSuccess() {
-        server({ exchange ->
-            exchange.requestBody.use { it.readBytes() }
-            respond(exchange, 200, """{"code":403,"message":"write permission denied"}""")
-        }) { base ->
-            temporary(byteArrayOf(1)) { file ->
-                assertThrows(OpenList.OpenListException::class.java) {
-                    OpenList(base).upload("/track.mp3", file)
+        for (body in listOf("""{"code":403,"message":"write permission denied"}""", """{"message":"success"}""", "")) {
+            server({ exchange ->
+                exchange.requestBody.use { it.readBytes() }
+                respond(exchange, 200, body)
+            }) { base ->
+                temporary(byteArrayOf(1)) { file ->
+                    assertThrows(OpenList.OpenListException::class.java) {
+                        OpenList(base).upload("/track.mp3", file)
+                    }
                 }
             }
         }

@@ -3,9 +3,9 @@ package com.qiuyuxc.tingyu
 import java.io.File
 import java.io.IOException
 import java.net.URL
-import java.net.URLEncoder
 import java.util.concurrent.ConcurrentHashMap
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 
 /** OpenList/AList file API client. Anonymous access depends on the server configuration. */
@@ -58,7 +58,7 @@ class OpenList(baseUrl: String) {
         } catch (error: Exception) {
             throw OpenListException("请求失败：${error.message}", error)
         } finally {
-            connection.disconnect()
+            StorageHttp.disconnect(connection)
         }
     }
 
@@ -143,7 +143,7 @@ class OpenList(baseUrl: String) {
                 }
                 return StorageHttp.readRange(connection, offset, length)
             } finally {
-                connection.disconnect()
+                StorageHttp.disconnect(connection)
             }
         }
         throw OpenListException("读取失败")
@@ -153,21 +153,24 @@ class OpenList(baseUrl: String) {
         val connection = StorageHttp.open("$base/api/fs/put", "PUT")
         try {
             connection.setRequestProperty("Content-Type", "application/octet-stream")
-            connection.setRequestProperty("File-Path", URLEncoder.encode(remotePath, "UTF-8"))
+            connection.setRequestProperty("File-Path", StorageHttp.encode(remotePath))
             connection.setRequestProperty("As-Task", "false")
+            connection.setRequestProperty("Overwrite", "false")
             if (token.isNotEmpty()) connection.setRequestProperty("Authorization", token)
             StorageHttp.writeFile(connection, local, progress)
             StorageHttp.requireSuccess(connection, "上传失败")
             val response = StorageHttp.body(connection.inputStream)
-            if (response.isNotBlank()) {
-                val result = JSONObject(response)
-                if (result.optInt("code", 200) != 200)
-                    throw OpenListException(result.optString("message", "上传失败"))
+            val result = try {
+                JSONObject(response)
+            } catch (error: JSONException) {
+                throw OpenListException("服务器未确认上传：响应无效", error)
             }
+            if (result.optInt("code", -1) != 200)
+                throw OpenListException("服务器未确认上传：" + result.optString("message", "响应无效"))
             urlCache.remove(remotePath)
             return remotePath
         } finally {
-            connection.disconnect()
+            StorageHttp.disconnect(connection)
         }
     }
 

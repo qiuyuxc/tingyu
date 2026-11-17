@@ -3,6 +3,7 @@
   "version_code": 26,
   "application_id": "com.qiuyuxc.tingyu.opensource",
   "debuggable": false,
+  "project_license": "GPL-3.0-only",
   "signature_verified": true,
   "certificate_sha256": "884b58562d8a7cdf46f630c5c65ced9135163336bbfffec3b4a9548f7ea32cbc",
   "zip_crc_verified": true,
@@ -12,35 +13,67 @@
     "lib/x86/libandroidx.graphics.path.so",
     "lib/x86_64/libandroidx.graphics.path.so"
   ],
-  "license_assets_verified": 17,
   "launcher_pngs_verified": 10,
+  "license_assets_verified": 17,
+  "license_assets_sha256": {
+    "AGPL-3.0.txt": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
+    "AndroidLiquidGlass.txt": "4b9f7e7c2821a5a1822a6cf1e4a34e877bba48a99b9bba1f03e5e2eccf6dec56",
+    "AndroidX-Kotlin-NOTICE.txt": "6318c373d2bf4cf6b215ce2b02ea54d69466b12f724fd38c2d74f45f45af7ccf",
+    "Apache-2.0.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "ChunkSeal-GPL-Permission.txt": "e60daa4b0a0d1fa46a70ede2b41663e0414746bb83a21c0f148e7c9e7e01ea83",
+    "ChunkSeal-NOTICE.txt": "0f3e0f4b2af8e415692ec0ed7571ea11005e7e2748141c6320300199d65a5613",
+    "Desugar-JDK-NOTICE.txt": "9922198b72a694387693b2b2524375ea18b1451b9399313b9761d953e50fcc9f",
+    "Desugar-JDK.txt": "4b9abebc4338048a7c2dc184e9f800deb349366bdf28eb23c2677a77b4c87726",
+    "GPL-3.0.txt": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "LiquidNavigation-NOTICE.txt": "2108b8fdfcee8c62f0e3ec70aa20e8043b081a4571a6127466f011a4972c5c3f",
+    "LrcView-NOTICE.txt": "696d330cb33ec746a6a471c10aefeb8a0dab73f1470502ab9e4e22c50898ef79",
+    "LrcView.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "Media3.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "Miuix.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "Project-NOTICE.txt": "de4ecf6531b43f3d610ba53a12c17e5166151a9b5377ae5f75edfff658100cd9",
+    "ThirdParty-NOTICE.txt": "cb5fcdd0448e49769a483cd64ff20a0f6bb3a5f668703fb5c90710c1bacf4a07",
+    "ZXing.txt": "849b3ff4527ff587eecc78736b5685bbba7a44b071f3b944da914e832292f6c0"
+  },
+  "repositories": {
+    "tingyu": "https://github.com/qiuyuxc/tingyu",
+    "chunkseal": "https://github.com/kity-yolo/chunkseal-protocol"
+  },
   "file_upload_code_present": true,
-  "public_feature_scope_verified": true,
-  "project_license": "GPL-3.0-only",
   "apk": {
     "file": "tingyu-0.12.9.apk",
-    "bytes": 11142953,
-    "sha256": "472b0bbe67efc62c3351983fe1b31bdd65272938724d4782ae9e840ae0f8c0d3"
+    "bytes": 11244494,
+    "sha256": "2e069f1d1aa75a87a897560870de2e46ad2e694ec278b9eba871fe69d5f55dc9"
   },
   "unit_tests": {
-    "tests": 215,
+    "tests": 218,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
-    "file_storage_tests": 13
+    "file_storage_tests": 16
   },
   "lint": {
-    "errors": 0,
-    "warnings": 102,
-    "debug_passed": true,
-    "release_vital_passed": true
+    "app": {
+      "Warning": 103,
+      "Hint": 4
+    },
+    "lrcview": {
+      "Warning": 4
+    }
   },
+  "checked_at_utc": "2026-11-17T08:07:08.398980+00:00",
   "build_tasks": [
     "testDebugUnitTest",
     "lintDebug",
     "assembleDebug",
     "assembleRelease"
   ],
+  "release_lint_vital_passed": true,
   "device_validation": "not run; no connected ADB device",
-  "real_cloud_validation": "not run; backend tests use local HTTP services"
+  "real_cloud_validation": "not run; backend tests use local HTTP services",
+  "regressions_verified": [
+    "OpenList path encoding preserves spaces and plus signs",
+    "API failures, missing code and empty upload responses are rejected",
+    "HTTP and OpenList uploads request that existing files be preserved",
+    "cancellation disconnects a pending HTTP response"
+  ]
 }

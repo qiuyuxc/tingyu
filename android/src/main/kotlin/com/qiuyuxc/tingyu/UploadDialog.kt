@@ -12,11 +12,9 @@ import java.io.IOException
 import java.util.Locale
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runInterruptible
 
 /** Uploads one batch at a time and owns its temporary document copies. */
 internal class UploadDialog(private val act: MainActivity, private val uploaded: () -> Unit) {
@@ -81,13 +79,13 @@ internal class UploadDialog(private val act: MainActivity, private val uploaded:
                 val finished = mutableListOf<String>()
                 var successful = 0
                 try {
-                    val store = runInterruptible(Dispatchers.IO) { Cloud.backend(act) }
+                    val store = storageIo { Cloud.backend(act) }
                     sources.forEachIndexed { index, source ->
                         ensureActive()
                         status.text = "上传 ${index + 1} / ${sources.size}"
                         progress.isIndeterminate = true
                         val name =
-                            runInterruptible(Dispatchers.IO) {
+                            storageIo {
                                 when (source) {
                                     is Source.Local -> source.file.name
                                     is Source.Document -> documentName(source.uri)
@@ -95,7 +93,7 @@ internal class UploadDialog(private val act: MainActivity, private val uploaded:
                             }
                         detail.text = "准备 $name"
                         try {
-                            runInterruptible(Dispatchers.IO) {
+                            storageIo {
                                 var temporary: File? = null
                                 try {
                                     val file =
