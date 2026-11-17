@@ -13,14 +13,15 @@ internal class SettingsNavigation {
         get() = stack.toList()
 
     fun open(next: String, fromTab: Int = 1) {
-        require(next in PAGES)
+        val destination = canonicalPage(next)
+        require(destination in PAGES)
         if (fromTab != 1) {
             reset()
             returnTab = 0
         }
-        if (next == page) return
+        if (destination == page) return
         stack += page
-        page = next
+        page = destination
     }
 
     fun back(): Boolean {
@@ -41,13 +42,16 @@ internal class SettingsNavigation {
     }
 
     fun restore(current: String?, previous: List<String>, origin: Int? = null) {
-        page = current?.takeIf { it in PAGES } ?: "home"
+        page = current?.let(::canonicalPage)?.takeIf { it in PAGES } ?: "home"
         stack.clear()
-        stack.addAll(previous.filter { it in PAGES }.take(16))
+        stack.addAll(previous.map(::canonicalPage).filter { it in PAGES }.take(16))
         returnTab = origin?.takeIf { it == 0 && page != "home" }
     }
 
     companion object {
+        private fun canonicalPage(page: String): String =
+            if (page == "encryption") "security" else page
+
         private val PAGES =
             setOf(
                 "home",
@@ -60,6 +64,7 @@ internal class SettingsNavigation {
                 "about",
                 "directories",
                 "cloud",
+                "security",
             )
     }
 }

@@ -1,7 +1,10 @@
 package com.qiuyuxc.tingyu
 
 import android.content.Context
+import android.content.SharedPreferences
+import java.io.IOException
 import java.net.URI
+import org.json.JSONObject
 
 /** Connection preferences for the user's cloud storage. */
 object Cloud {
@@ -22,6 +25,13 @@ object Cloud {
     const val OPENLIST_PASSWORD = "cloud.openlist.password"
     const val OPENLIST_DIR = "cloud.openlist.directory"
 
+    private const val KEY_ID = "keyId"
+    private const val OLD_KEYS = "oldKeys"
+    private const val CURRENT_KEY = "cloudKey"
+    private const val LEGACY_IMPORTED_KEYS = "music.encryption.keys"
+
+    class CloudException(message: String, cause: Throwable) : Exception(message, cause)
+
     private val fields =
         setOf(
             S3_ENDPOINT,
@@ -40,6 +50,138 @@ object Cloud {
 
     private fun preferences(context: Context) =
         context.getSharedPreferences(MainActivity.PREFS, Context.MODE_PRIVATE)
+
+    @JvmStatic fun passphrase(context: Context): String = readKeyRing(preferences(context)).current
+
+    @JvmStatic fun newMasterKeyExport(): String = ChunkSealKeys.generate()
+
+    class EncryptionKey(@JvmField val masterKey: ByteArray, @JvmField val keyId: Int)
+
+    @JvmStatic
+    @Synchronized
+    fun encryptionKey(context: Context): EncryptionKey {
+        val stored = preferences(context)
+        val before = readKeyRing(stored)
+        val after = before.ensureMasterKey()
+        if (after != before) saveKeyRing(stored, after)
+        return EncryptionKey(ChunkSealKeys.decode(after.current), after.currentId)
+    }
+
+    /** The original key ring retains the previous credential when the current key changes. */
+    @JvmStatic
+    @Synchronized
+    fun setPassphrase(context: Context, next: String?) {
+        val stored = preferences(context)
+        val before = readKeyRing(stored)
+        val after = before.withCurrent(next.orEmpty())
+        if (after != before) saveKeyRing(stored, after)
+    }
+
+    @JvmStatic
+    @Synchronized
+    fun addOldKey(context: Context, value: String?) {
+        if (value.isNullOrEmpty()) return
+        val stored = preferences(context)
+        val before = readKeyRing(stored)
+        val after = before.importOld(value)
+        if (after != before) saveKeyRing(stored, after)
+    }
+
+    @JvmStatic
+    fun oldKeyCount(context: Context): Int =
+        keyCandidates(context, 0).filter { it != passphrase(context) }.distinct().size
+
+    @JvmStatic
+    fun keyCandidates(context: Context, keyId: Int): List<String> {
+        val stored = preferences(context)
+        return (readKeyRing(stored).candidates(keyId) + legacyImports(stored).forKeyId(keyId))
+            .distinct()
+    }
+
+    @JvmStatic
+    fun keys(context: Context): Ncmx.Keys {
+        val stored = preferences(context)
+        val ring = readKeyRing(stored)
+        val legacyPasswords = legacyImports(stored).forKeyId(0)
+        return object : Ncmx.Keys {
+            override fun forKeyId(keyId: Int): List<String> =
+                (ring.candidates(keyId).filterNot(ChunkSealKeys::isExport) + legacyPasswords)
+                    .distinct()
+
+            override fun forMasterKeyId(keyId: Int): List<ByteArray?> =
+                ChunkSealKeys.rawCandidates(ring.candidates(keyId))
+        }
+    }
+
+    /** Existing public imports are migrated without changing their exact password text or type. */
+    @Synchronized
+    private fun readKeyRing(stored: SharedPreferences): CloudKeyRing {
+        try {
+            val before =
+                CloudKeyRing.fromStored(
+                    stored.getString(CURRENT_KEY, ""),
+                    stored.getInt(KEY_ID, 0),
+                    stored.getString(OLD_KEYS, ""),
+                )
+            val after =
+                legacyImports(stored).entries.fold(before) { ring, entry ->
+                    // Empty and explicitly tagged passwords keep their legacy type when reading.
+                    if (
+                        entry.masterKey ||
+                            entry.value.isNotEmpty() && !ChunkSealKeys.isExport(entry.value)
+                    )
+                        ring.importOld(entry.value)
+                    else ring
+                }
+            if (after != before) saveKeyRing(stored, after)
+            return after
+        } catch (error: Exception) {
+            throw CloudException("本机解密凭据格式不正确: " + error.message, error)
+        }
+    }
+
+    private fun legacyImports(stored: SharedPreferences): ImportedMusicKeys =
+        ImportedMusicKeys.parse(stored.getString(LEGACY_IMPORTED_KEYS, "[]") ?: "[]")
+
+    /** Match the original atomic save and rollback behavior before enabling a new key. */
+    private fun saveKeyRing(stored: SharedPreferences, ring: CloudKeyRing) {
+        val previousCurrent = stored.getString(CURRENT_KEY, "")
+        val previousId = stored.getInt(KEY_ID, 0)
+        val previousOld = stored.getString(OLD_KEYS, "")
+        try {
+            val saved =
+                stored
+                    .edit()
+                    .putString(CURRENT_KEY, ring.current)
+                    .putInt(KEY_ID, ring.currentId)
+                    .putString(OLD_KEYS, ring.serializedOld())
+                    .commit()
+            if (!saved) throw IOException("写入存储失败")
+        } catch (error: Exception) {
+            try {
+                stored
+                    .edit()
+                    .putString(CURRENT_KEY, previousCurrent)
+                    .putInt(KEY_ID, previousId)
+                    .putString(OLD_KEYS, previousOld)
+                    .commit()
+            } catch (restore: Exception) {
+                error.addSuppressed(restore)
+            }
+            throw CloudException("保存解密凭据失败，未启用新密钥: " + error.message, error)
+        }
+    }
+
+    internal fun keyConfiguration(context: Context): String {
+        val stored = preferences(context)
+        val ring = readKeyRing(stored)
+        return JSONObject()
+            .put(CURRENT_KEY, ring.current)
+            .put(KEY_ID, ring.currentId)
+            .put(OLD_KEYS, ring.serializedOld())
+            .put(LEGACY_IMPORTED_KEYS, stored.getString(LEGACY_IMPORTED_KEYS, "[]"))
+            .toString()
+    }
 
     fun enabled(context: Context): Boolean = preferences(context).getBoolean("cloud.enabled", false)
 
@@ -104,6 +246,15 @@ object Cloud {
             else -> "OpenList · " + get(context, OPENLIST_DIR)
         }
 
+    /** Identifies a directory without including account credentials. */
+    fun sourceId(context: Context): String =
+        when (mode(context)) {
+            MODE_S3 ->
+                "s3:${get(context, S3_ENDPOINT)}|${get(context, S3_BUCKET)}|${get(context, S3_PREFIX)}"
+            MODE_HTTP -> "http:${get(context, HTTP_BASE)}"
+            else -> "openlist:${get(context, OPENLIST_URL)}|${get(context, OPENLIST_DIR)}"
+        }
+
     /** Create the selected backend on an IO dispatcher; OpenList may need to log in. */
     fun backend(context: Context): Storage {
         check(configured(context)) { "请先填写完整的云端连接信息" }
@@ -130,8 +281,14 @@ object Cloud {
         }
     }
 
-    fun configuration(context: Context): Map<String, *> =
-        preferences(context).all.filterKeys { it.startsWith("cloud.") }
+    fun configuration(context: Context): Map<String, *> {
+        val stored = preferences(context)
+        readKeyRing(stored)
+        return stored.all.filterKeys {
+            it.startsWith("cloud.") ||
+                it in setOf(CURRENT_KEY, KEY_ID, OLD_KEYS, LEGACY_IMPORTED_KEYS)
+        }
+    }
 
     internal fun validUrl(value: String): Boolean = runCatching {
         val uri = URI(value)

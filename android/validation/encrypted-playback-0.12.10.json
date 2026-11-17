@@ -1,0 +1,12 @@
+{
+  "plaintext_bytes": 167293911,
+  "plaintext_sha256": "a5f70b044b9859541fc58560fc83cc6476dad19d3e46be36dfaa90b92370e6d0",
+  "seek_reopen_passed": true,
+  "flac_recognized": true,
+  "passed": true,
+  "checked_at_utc": "2026-11-17T10:09:50.878181+00:00",
+  "apk": "tingyu-0.12.10.apk",
+  "apk_sha256": "9c642934ad3800b0341395ef7880cff13adb6a14acb050a56cfd64b53852704e",
+  "container_sha256": "7be8973d45dd819edf7db746566eb1e629ced8a01476aefc21af533d2d3cf6dd",
+  "audio_output_tested": false
+}

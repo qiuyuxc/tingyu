@@ -45,6 +45,7 @@ class Player private constructor() {
     private val listeners = ArrayList<Listener?>()
     private var index = -1
     private var prepared = false
+    private var dataSource: MusicDataSource? = null
     private val platformScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var platformJob: Job? = null
     private var metadataJob: Job? = null
@@ -146,7 +147,7 @@ class Player private constructor() {
                         "播放出错: what=$what extra=$extra; ${failure?.diagnostic.orEmpty()}"
                     )
                     try {
-                        mp.reset()
+                        resetAudio()
                     } catch (ignored: IllegalStateException) {}
                     notifyChanged()
                 }
@@ -525,7 +526,7 @@ class Player private constructor() {
         autoplayPending = autoplay
         fillUpcoming()
         try {
-            mp.reset()
+            resetAudio()
             applyVolume()
             if (s == null) return
             // 有歌要放了 —— 把前台服务 + 媒体会话拉起来, 否则锁屏和岛上看不到
@@ -655,6 +656,42 @@ class Player private constructor() {
                     }
                 }
                 return
+            } else if (s.isEncrypted || s.isCloud) {
+                val context = requireNotNull(appCtx)
+                isLoading = true
+                platformJob = platformScope.launch {
+                    var opened: MusicDataSource? = null
+                    try {
+                        val result = storageIo {
+                            EncryptedMusic.playbackSource(context, s).also { opened = it.source }
+                        }
+                        ensureActive()
+                        if (generation != loadGeneration || current() !== s) return@launch
+                        dataSource = result.source
+                        opened = null
+                        result.info?.let { EncryptedMusic.applyMetadata(s, it) }
+                        s.readProblem = null
+                        playbackGain.setTrackGain(s.gainDb)
+                        applyVolume()
+                        mp.setDataSource(context, result.source)
+                        mp.prepareAsync()
+                        notifyChanged()
+                    } catch (error: CancellationException) {
+                        throw error
+                    } catch (error: Exception) {
+                        if (generation == loadGeneration) {
+                            runCatching { resetAudio() }
+                            isLoading = false
+                            prepared = false
+                            lastError = error.message ?: "音乐文件读取失败"
+                            s.readProblem = lastError
+                            notifyChanged()
+                        }
+                    } finally {
+                        runCatching { opened?.close() }
+                    }
+                }
+                return
             } else {
                 playbackGain.setTrackGain(AudioLoudness.fromFile(s.file))
                 applyVolume()
@@ -692,7 +729,7 @@ class Player private constructor() {
         metadataJob?.cancel()
         loadGeneration++
         try {
-            mp.reset()
+            resetAudio()
         } catch (ignored: IllegalStateException) {}
 
         prepared = false
@@ -703,6 +740,15 @@ class Player private constructor() {
         // 播放真的停了, 通知和会话也该收掉
         if (appCtx != null) PlaybackService.shutdown(appCtx)
         notifyChanged()
+    }
+
+    private fun resetAudio() {
+        try {
+            mp.reset()
+        } finally {
+            runCatching { dataSource?.close() }
+            dataSource = null
+        }
     }
 
     internal fun removePlatform(platform: MusicPlatform) {
@@ -735,6 +781,7 @@ class Player private constructor() {
         private fun isSame(a: Song?, b: Song?): Boolean {
             if (a == null || b == null) return false
             if (a.isPlatform || b.isPlatform) return a.isPlatform && b.isPlatform && a.key == b.key
+            if (a.isCloud || b.isCloud) return a.isCloud && b.isCloud && a.key == b.key
             return a.file != null && a.file == b.file
         }
 
@@ -783,6 +830,10 @@ class Player private constructor() {
             appCtx = ctx!!.getApplicationContext()
             ListeningHistory.init(appCtx!!)
             PlatformArtwork.init(requireNotNull(appCtx))
+            Ncmx.keyStore =
+                NcmxKeyStore(
+                    java.io.File(requireNotNull(appCtx).filesDir, "music-derived-keys.txt")
+                )
         }
     }
 }

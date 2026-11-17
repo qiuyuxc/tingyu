@@ -60,6 +60,7 @@ internal class CloudFilesPage(private val act: MainActivity, state: Bundle? = nu
         val enabled = remember(configuration) { Cloud.enabled(act) }
         val configured = remember(configuration) { Cloud.configured(act) }
         var files by remember { mutableStateOf<List<Storage.Item>>(emptyList()) }
+        var songs by remember { mutableStateOf<List<Song>>(emptyList()) }
         var loading by remember { mutableStateOf(false) }
         var problem by remember { mutableStateOf<String?>(null) }
         val list = rememberLazyListState(listIndex, listOffset)
@@ -73,6 +74,7 @@ internal class CloudFilesPage(private val act: MainActivity, state: Bundle? = nu
         LaunchedEffect(configuration, refresh) {
             val request = ++requestGeneration
             files = emptyList()
+            songs = emptyList()
             problem = null
             if (!enabled || !configured) {
                 loading = false
@@ -80,17 +82,35 @@ internal class CloudFilesPage(private val act: MainActivity, state: Bundle? = nu
             }
             loading = true
             try {
-                val loaded =
-                    storageIo {
-                        val storage = Cloud.backend(act)
-                        ensureActive()
-                        storage
-                            .list()
-                            .filterNot { it.isDirectory }
-                            .distinctBy { it.path }
-                            .sortedBy { it.name.lowercase() }
-                    }
-                if (request == requestGeneration) files = loaded
+                val storage = storageIo { Cloud.backend(act) }
+                val sourceId = Cloud.sourceId(act)
+                val loaded = storageIo {
+                    ensureActive()
+                    storage
+                        .list()
+                        .filterNot { it.isDirectory }
+                        .distinctBy { it.path }
+                        .sortedBy { it.name.lowercase() }
+                }
+                if (request == requestGeneration) {
+                    files = loaded
+                    songs =
+                        loaded
+                            .filter { LocalMetadata.isAudioName(it.name) }
+                            .map { Song.cloud(it, sourceId) }
+                    loading = false
+                }
+                val enriched = storageIo {
+                    loaded
+                        .filter { LocalMetadata.isAudioName(it.name) }
+                        .map { item ->
+                            ensureActive()
+                            Song.cloud(item, sourceId).also { song ->
+                                if (song.isEncrypted) EncryptedMusic.enrich(act, song, storage)
+                            }
+                        }
+                }
+                if (request == requestGeneration) songs = enriched
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
@@ -145,23 +165,31 @@ internal class CloudFilesPage(private val act: MainActivity, state: Bundle? = nu
                         item { MusicStatus("还没有文件", "上传文件后，它们会显示在这里。") }
                     }
                     items(files, key = { it.path }) { file ->
+                        val song = songs.firstOrNull { it.cloudFile?.path == file.path }
                         Row(
                             Modifier.fillMaxWidth()
                                 .clip(RoundedCornerShape(16.dp))
-                                .clickable(onClickLabel = "查看${file.name}") { details(file) }
+                                .clickable(onClickLabel = "查看${song?.title ?: file.name}") {
+                                    details(file, song, songs)
+                                }
                                 .padding(vertical = 14.dp, horizontal = 12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             UiIcon(R.drawable.ic_ent_cloud, colors.primary, Modifier.size(30.dp))
                             Column(Modifier.weight(1f).padding(start = 14.dp)) {
                                 UiText(
-                                    file.name,
+                                    song?.title ?: file.name,
                                     size = 15,
                                     weight = FontWeight.Medium,
                                     maxLines = 2,
                                 )
                                 UiText(
-                                    fileSize(file.size),
+                                    song?.readProblem
+                                        ?: listOfNotNull(
+                                                song?.artist?.takeIf { it.isNotBlank() },
+                                                fileSize(file.size),
+                                            )
+                                            .joinToString(" · "),
                                     size = 12,
                                     color = colors.onSurfaceVariantSummary,
                                 )
@@ -173,14 +201,34 @@ internal class CloudFilesPage(private val act: MainActivity, state: Bundle? = nu
         }
     }
 
-    private fun details(file: Storage.Item) {
+    private fun details(file: Storage.Item, song: Song?, queue: List<Song>) {
         Sheet.of(act, file.name)
             .size(SheetSize.COMPACT)
             .content(
-                UI.muted(act, "${fileSize(file.size)}\n${file.path}").apply {
-                    setTextIsSelectable(true)
-                }
+                UI.muted(
+                        act,
+                        listOf(fileSize(file.size), file.path, song?.readProblem.orEmpty())
+                            .filter { it.isNotBlank() }
+                            .joinToString("\n"),
+                    )
+                    .apply {
+                        setTextIsSelectable(true)
+                    }
             )
+            .apply {
+                if (song != null)
+                    item(R.drawable.ic_media_play, "播放") {
+                        val index = queue.indexOfFirst { it.key == song.key }
+                        if (index >= 0) {
+                            Player.get().play(queue.map { it as Song? }.toMutableList(), index)
+                            act.openPlayer(null, null)
+                        }
+                    }
+                if (song?.isEncrypted == true)
+                    item(R.drawable.ic_ent_gear, "加密音乐密钥") {
+                        act.openSettings("security")
+                    }
+            }
             .show()
     }
 

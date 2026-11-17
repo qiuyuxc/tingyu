@@ -1,0 +1,63 @@
+{
+  "version": "0.12.10",
+  "version_code": 27,
+  "application_id": "com.qiuyuxc.tingyu.opensource",
+  "debuggable": false,
+  "project_license": "GPL-3.0-only",
+  "signature_verified": true,
+  "certificate_sha256": "884b58562d8a7cdf46f630c5c65ced9135163336bbfffec3b4a9548f7ea32cbc",
+  "zip_crc_verified": true,
+  "native_libraries_aligned_16kb": [
+    "lib/arm64-v8a/libandroidx.graphics.path.so",
+    "lib/armeabi-v7a/libandroidx.graphics.path.so",
+    "lib/x86/libandroidx.graphics.path.so",
+    "lib/x86_64/libandroidx.graphics.path.so"
+  ],
+  "launcher_pngs_verified": 10,
+  "license_assets_verified": 17,
+  "license_assets_sha256": {
+    "AGPL-3.0.txt": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
+    "AndroidLiquidGlass.txt": "4b9f7e7c2821a5a1822a6cf1e4a34e877bba48a99b9bba1f03e5e2eccf6dec56",
+    "AndroidX-Kotlin-NOTICE.txt": "6318c373d2bf4cf6b215ce2b02ea54d69466b12f724fd38c2d74f45f45af7ccf",
+    "Apache-2.0.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "ChunkSeal-GPL-Permission.txt": "e60daa4b0a0d1fa46a70ede2b41663e0414746bb83a21c0f148e7c9e7e01ea83",
+    "ChunkSeal-NOTICE.txt": "0f3e0f4b2af8e415692ec0ed7571ea11005e7e2748141c6320300199d65a5613",
+    "Desugar-JDK-NOTICE.txt": "9922198b72a694387693b2b2524375ea18b1451b9399313b9761d953e50fcc9f",
+    "Desugar-JDK.txt": "4b9abebc4338048a7c2dc184e9f800deb349366bdf28eb23c2677a77b4c87726",
+    "GPL-3.0.txt": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "LiquidNavigation-NOTICE.txt": "2108b8fdfcee8c62f0e3ec70aa20e8043b081a4571a6127466f011a4972c5c3f",
+    "LrcView-NOTICE.txt": "696d330cb33ec746a6a471c10aefeb8a0dab73f1470502ab9e4e22c50898ef79",
+    "LrcView.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "Media3.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "Miuix.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "Project-NOTICE.txt": "de4ecf6531b43f3d610ba53a12c17e5166151a9b5377ae5f75edfff658100cd9",
+    "ThirdParty-NOTICE.txt": "b0fa1a4173d859e8a7913d1e1dcdd92d890f500075e04ef426a4aa49ae07335a",
+    "ZXing.txt": "849b3ff4527ff587eecc78736b5685bbba7a44b071f3b944da914e832292f6c0"
+  },
+  "repositories": {
+    "tingyu": "https://github.com/qiuyuxc/tingyu",
+    "chunkseal": "https://github.com/kity-yolo/chunkseal-protocol"
+  },
+  "file_upload_code_present": true,
+  "apk": {
+    "file": "tingyu-0.12.10.apk",
+    "bytes": 11279908,
+    "sha256": "9c642934ad3800b0341395ef7880cff13adb6a14acb050a56cfd64b53852704e"
+  },
+  "unit_tests": {
+    "tests": 241,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "file_storage_tests": 16
+  },
+  "lint": {
+    "app": {
+      "Warning": 106,
+      "Hint": 7
+    },
+    "lrcview": {
+      "Warning": 4
+    }
+  }
+}

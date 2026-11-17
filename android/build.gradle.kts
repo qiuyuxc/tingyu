@@ -16,8 +16,8 @@ android {
             providers.gradleProperty("applicationId").getOrElse("com.qiuyuxc.tingyu.opensource")
         minSdk = 24
         targetSdk = 35
-        versionCode = 26
-        versionName = "0.12.9"
+        versionCode = 28
+        versionName = "0.12.11"
     }
 
     sourceSets {

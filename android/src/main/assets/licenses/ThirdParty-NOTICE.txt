@@ -24,7 +24,9 @@ The About page includes `assets/licenses/ChunkSeal-NOTICE.txt`,
 `assets/licenses/ChunkSeal-GPL-Permission.txt` and the unmodified upstream
 license in `assets/licenses/AGPL-3.0.txt`. The notice and permission match
 the copies in the repository's `licenses/` directory. The permission identifies both
-source repositories and is recorded for future integration into the public edition.
+source repositories. The public edition includes the ChunkSeal V1/V2 reader,
+music metadata integration and fixed protocol test vectors under that permission.
+The reader also preserves Tingyu's legacy NCMX compatibility.
 
 # AndroidX, Kotlin and Java compatibility
 

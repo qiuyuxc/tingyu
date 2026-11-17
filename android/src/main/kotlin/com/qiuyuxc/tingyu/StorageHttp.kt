@@ -9,7 +9,7 @@ import java.net.URL
 import java.net.URLEncoder
 
 internal object StorageHttp {
-    private val currentRequests = ThreadLocal<Requests>()
+    private val currentRequests = ThreadLocal<List<Requests>>()
 
     /** Owns connections for one cancellable operation, including its pagination requests. */
     class Requests {
@@ -32,7 +32,7 @@ internal object StorageHttp {
 
         fun <T> run(block: () -> T): T {
             val previous = currentRequests.get()
-            currentRequests.set(this)
+            currentRequests.set((previous.orEmpty() + this).distinct())
             try {
                 return block()
             } finally {
@@ -41,13 +41,13 @@ internal object StorageHttp {
         }
 
         fun cancel() {
-            val active = synchronized(this) {
-                cancelled = true
-                connections.toList().also { connections.clear() }
-            }
+            val active =
+                synchronized(this) {
+                    cancelled = true
+                    connections.toList().also { connections.clear() }
+                }
             active.forEach { it.disconnect() }
         }
-
     }
 
     fun encode(value: String): String =
@@ -76,7 +76,7 @@ internal object StorageHttp {
             readTimeout = if (method == "PUT") 600_000 else 30_000
             instanceFollowRedirects = method == "GET" || method == "HEAD"
             setRequestProperty("User-Agent", "Tingyu")
-            currentRequests.get()?.register(this)
+            currentRequests.get()?.forEach { it.register(this) }
         }
     }
 
@@ -84,7 +84,7 @@ internal object StorageHttp {
         try {
             connection.disconnect()
         } finally {
-            currentRequests.get()?.release(connection)
+            currentRequests.get()?.forEach { it.release(connection) }
         }
     }
 

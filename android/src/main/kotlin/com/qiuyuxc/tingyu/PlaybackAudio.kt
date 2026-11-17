@@ -1,6 +1,7 @@
 package com.qiuyuxc.tingyu
 
 import android.content.Context
+import android.media.MediaDataSource
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
@@ -19,7 +20,7 @@ import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import java.io.File
 
-/** Local files and platform streams share high-resolution float PCM playback. */
+/** Files, encrypted sources and platform streams share high-resolution float PCM playback. */
 @androidx.annotation.OptIn(UnstableApi::class)
 internal class PlaybackAudio {
     interface Listener {
@@ -68,6 +69,18 @@ internal class PlaybackAudio {
             }
             true
         }
+    }
+
+    fun setDataSource(context: Context, source: MediaDataSource) {
+        failure = null
+        if (Build.VERSION.SDK_INT < 27) {
+            modern = false
+            native.setDataSource(source)
+            active = true
+            return
+        }
+        val uri = Uri.parse("tingyu://audio/${generation + 1}")
+        setProgressiveSource(context, uri, DataSource.Factory { BorrowedMediaDataSource(source) })
     }
 
     fun setDataSource(context: Context, path: String) {

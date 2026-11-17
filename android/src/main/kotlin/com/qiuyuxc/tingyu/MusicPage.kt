@@ -20,6 +20,7 @@ import kotlinx.coroutines.withContext
 /** Local collection routes share the existing discovery, account and online playback home. */
 class MusicPage(private val act: MainActivity) {
     private val configuredRoot = Dirs.src(act)
+    private val configuredKeys = EncryptedMusic.configuration(act)
     private val songs = mutableListOf<Song>()
     private var root: FrameLayout? = null
     private var home: MusicHomeView? = null
@@ -37,7 +38,7 @@ class MusicPage(private val act: MainActivity) {
     private var scroll: ScrollView? = null
     private var savedScroll = 0
 
-    fun matchesConfiguration(): Boolean = configuredRoot == Dirs.src(act)
+    fun matchesConfiguration(): Boolean = configuredRoot == Dirs.src(act) && configuredKeys == EncryptedMusic.configuration(act)
     fun restoreState(state: Bundle?) {
         restored = state
         route = state?.getString("route")?.takeIf { it in setOf("home", "songs", "playlists", "playlist") } ?: "home"
@@ -105,7 +106,7 @@ class MusicPage(private val act: MainActivity) {
                     else Song(file).also { song ->
                         song.title = entry.title.ifBlank { song.title }
                         song.artist = entry.artist; song.album = entry.album
-                        LocalMetadata.enrich(song)
+                        enrich(song)
                     }
                 }
             }
@@ -131,7 +132,7 @@ class MusicPage(private val act: MainActivity) {
                     directory.walkTopDown().maxDepth(20).filter { it.isFile && LocalMetadata.isAudio(it) }.forEach {
                         ensureActive()
                         val song = Song(it)
-                        LocalMetadata.enrich(song)
+                        enrich(song)
                         if (Playlist.get(act).add(song)) count++
                     }
                     Playlist.syncM3u(act)
@@ -228,7 +229,7 @@ class MusicPage(private val act: MainActivity) {
             }
             val labels = UI.column(act).apply { setPadding(UI.dp(12), 0, UI.dp(8), 0) }
             labels.addView(UI.strong(act, song.title))
-            labels.addView(UI.muted(act, song.subtitle()))
+            labels.addView(UI.muted(act, song.readProblem ?: song.subtitle()))
             row.addView(labels, LinearLayout.LayoutParams(0, -2, 1f))
             row.addView(MiuixIconView(act, R.drawable.ic_action_more, "${song.title}的选项") { songOptions(song) })
             row.setOnClickListener { playExternal(shown, index) }
@@ -239,6 +240,7 @@ class MusicPage(private val act: MainActivity) {
     private fun collectionOptions() {
         Sheet.of(act, "音乐库选项").size(SheetSize.COMPACT)
             .item(R.drawable.ic_action_refresh, "扫描音乐目录") { act.scanLocalLibrary() }
+            .item(R.drawable.ic_ent_gear, "加密音乐密钥") { act.openSettings("security") }
             .item(R.drawable.ic_ent_playlist, "导出 M3U 歌单") {
                 act.lifecycleScope.launch {
                     val result = withContext(Dispatchers.IO) { runCatching { Playlist.exportM3uFor(act) } }
@@ -253,9 +255,10 @@ class MusicPage(private val act: MainActivity) {
 
     private fun songOptions(song: Song) {
         Sheet.of(act, song.title).size(SheetSize.COMPACT)
-            .content(UI.muted(act, listOf(song.subtitle(), song.durationText(), song.sizeText(), song.file?.absolutePath.orEmpty())
+            .content(UI.muted(act, listOf(song.subtitle(), song.durationText(), song.sizeText(), song.file?.absolutePath.orEmpty(), song.readProblem.orEmpty())
                 .filter { it.isNotBlank() }.joinToString("\n")))
             .item(R.drawable.ic_media_play, "播放") { playExternal(listOf(song), 0) }
+            .item(R.drawable.ic_ent_gear, "加密音乐密钥") { act.openSettings("security") }
             .item(R.drawable.ic_ent_cloud, "上传到云端") {
                 song.file?.let { act.uploadLocalFile(it) }
             }
@@ -265,6 +268,10 @@ class MusicPage(private val act: MainActivity) {
                     loadAsync()
                 }
             }.show()
+    }
+
+    private fun enrich(song: Song) {
+        if (song.isEncrypted) EncryptedMusic.enrich(act, song) else LocalMetadata.enrich(song)
     }
     private fun toast(message: String) { Toast.makeText(act, message, Toast.LENGTH_SHORT).show() }
 }

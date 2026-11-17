@@ -31,7 +31,8 @@ internal object SongArtwork {
         if (song.isPlatform) PlatformArtwork.keyForTrack(requireNotNull(song.platformTrack), pixels)
         else "${source(song)}:${DecodedArtworkCache.size(pixels)}"
 
-    private fun source(song: Song) = "song:${song.key}:${song.size}:${song.file?.lastModified() ?: 0}"
+    private fun source(song: Song) =
+        "song:${song.key}:${song.size}:${song.file?.lastModified() ?: 0}:${java.util.Arrays.hashCode(song.encryptedCover)}"
 
     fun cached(song: Song, pixels: Int): Bitmap? =
         if (song.isPlatform)
@@ -41,7 +42,8 @@ internal object SongArtwork {
     fun get(context: Context, song: Song, pixels: Int): Bitmap? {
         if (song.isPlatform) return PlatformArtwork.forSong(context, song, pixels)
         return ArtworkBitmaps.cache.get(source(song), pixels) { target ->
-            LocalMetadata.thumbnail(song.file, target)
+            if (song.isEncrypted) song.encryptedCover?.let { PlatformArtwork.decode(it, target) }
+            else LocalMetadata.thumbnail(song.file, target)
         }
     }
 

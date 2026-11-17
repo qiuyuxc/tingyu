@@ -75,7 +75,7 @@ internal data class HeardSong(
                 )
             )
         } else {
-            Song(File(filePath.ifBlank { key })).also {
+            Song.fromStoredPath(filePath.ifBlank { key }).also {
                 it.title = title
                 it.artist = artist
                 it.album = album
@@ -115,7 +115,7 @@ internal data class HeardSong(
                 track?.albumId ?: "0",
                 track?.audioId ?: "0",
                 track?.fileId.orEmpty(),
-                song.file?.absolutePath.orEmpty(),
+                song.storedPath,
                 track?.access ?: TrackAccess.UNKNOWN,
             )
         }
