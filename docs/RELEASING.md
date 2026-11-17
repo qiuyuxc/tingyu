@@ -5,7 +5,9 @@
 1. 更新 `android/build.gradle.kts` 中的 `versionCode` 与 `versionName`。
 2. 在更新后的源码上运行 `./gradlew testDebugUnitTest lintDebug assembleDebug`。
 3. 在 Android 设备验证扫码登录、账号恢复、本地与在线播放、歌词拖动、
-   队列排序、主题切换、通知和锁屏控制。
+   队列排序、主题切换、通知和锁屏控制，以及云端设置、文件列表和上传。
+   上传检查包括系统多文件选择、本地歌曲入口、同名文件、网络失败、
+   关闭进度面板后取消，以及连续开启上传时的任务与缓存清理。
 4. 检查关于页能打开 GPLv3 全文和所有已使用组件的许可说明。
 5. 记录测试结果、设备验证范围和 APK 的 SHA-256。
 

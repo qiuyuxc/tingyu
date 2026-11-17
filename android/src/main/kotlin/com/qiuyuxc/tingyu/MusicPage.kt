@@ -256,6 +256,9 @@ class MusicPage(private val act: MainActivity) {
             .content(UI.muted(act, listOf(song.subtitle(), song.durationText(), song.sizeText(), song.file?.absolutePath.orEmpty())
                 .filter { it.isNotBlank() }.joinToString("\n")))
             .item(R.drawable.ic_media_play, "播放") { playExternal(listOf(song), 0) }
+            .item(R.drawable.ic_ent_cloud, "上传到云端") {
+                song.file?.let { act.uploadLocalFile(it) }
+            }
             .item(R.drawable.ic_nav_close, "从收藏移除") {
                 act.lifecycleScope.launch {
                     withContext(Dispatchers.IO) { Playlist.get(act).remove(song.key); Playlist.syncM3u(act) }

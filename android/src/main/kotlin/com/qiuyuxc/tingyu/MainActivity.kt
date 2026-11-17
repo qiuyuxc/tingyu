@@ -79,6 +79,11 @@ class MainActivity : ComponentActivity(), Player.Listener {
     private var storageAction: String? = null
     private var exitHintAt = 0L
     private var exitHint: Toast? = null
+    private var fileUpload: UploadDialog? = null
+    private val cloudFilePicker =
+        registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+            if (uris.isNotEmpty()) uploadDialog().documents(uris)
+        }
     private val avatarPicker =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             if (uri != null)
@@ -140,6 +145,7 @@ class MainActivity : ComponentActivity(), Player.Listener {
                         }
                     "browse" -> openMusicRoute(MusicBrowsePage(this, state))
                     "personal" -> openMusicRoute(PersonalMusicPage(this, state))
+                    "cloud" -> openMusicRoute(CloudFilesPage(this, state))
                 }
             }
             if (musicRoutes.isNotEmpty()) musicRouteOrigin = restoredOrigin
@@ -528,6 +534,31 @@ class MainActivity : ComponentActivity(), Player.Listener {
         avatarPicker.launch("image/*")
     }
 
+    internal fun openCloudFiles() {
+        openMusicRoute(CloudFilesPage(this))
+    }
+
+    internal fun pickCloudFiles() {
+        if (!Cloud.enabled(this) || !Cloud.configured(this)) {
+            openSettings("cloud")
+            return
+        }
+        if (fileUpload?.busy() == true) {
+            Toast.makeText(this, "已有文件正在上传，请稍候。", Toast.LENGTH_SHORT).show()
+            return
+        }
+        cloudFilePicker.launch(arrayOf("*/*"))
+    }
+
+    internal fun uploadLocalFile(file: java.io.File) {
+        uploadDialog().local(file)
+    }
+
+    private fun uploadDialog(): UploadDialog =
+        fileUpload ?: UploadDialog(this) {
+            musicRoutes.filterIsInstance<CloudFilesPage>().forEach { it.refresh() }
+        }.also { fileUpload = it }
+
     internal fun openLocalCollection(playlists: Boolean) {
         if (!playlists && !hasStorageAccess()) {
             storageAction = "songs"
@@ -758,6 +789,7 @@ class MainActivity : ComponentActivity(), Player.Listener {
     }
 
     override fun onDestroy() {
+        fileUpload?.dismiss()
         Player.get().removeListener(this)
         player.dispose()
         musicPages.forEach { it?.dispose() }

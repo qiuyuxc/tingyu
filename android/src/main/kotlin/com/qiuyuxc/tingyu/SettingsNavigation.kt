@@ -59,6 +59,7 @@ internal class SettingsNavigation {
                 "cache",
                 "about",
                 "directories",
+                "cloud",
             )
     }
 }

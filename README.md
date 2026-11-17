@@ -1,6 +1,6 @@
 # 听屿 / Tingyu
 
-一款 Android 音乐播放器，使用 MIUIX 界面，支持本地曲库与网易云音乐、酷狗概念版账号。
+一款 Android 音乐播放器，使用 MIUIX 界面，支持本地曲库、云端文件与网易云音乐、酷狗概念版账号。
 
 项目仓库：[qiuyuxc/tingyu](https://github.com/qiuyuxc/tingyu)。
 
@@ -9,12 +9,15 @@
 - 扫码登录、账号管理、会员状态与默认音质选择。
 - 在线搜索、推荐、排行榜、歌单、喜欢的歌曲与评论。
 - 本地音乐扫描、播放、收藏和 M3U 歌单导出。
+- S3、OpenList 与 HTTP 存储连接，本地音乐和文件上传、云端文件列表。
 - 专辑封面、同步歌词、翻译歌词、最近播放与听歌排行。
 - 播放队列排序、循环与随机播放、媒体通知和锁屏控制。
 - 跟随系统的明暗主题、三套配色和播放页封面背景。
 
 支持 Android 7.0（API 24）及以上版本；液态玻璃导航在 Android 13 及以上启用。
 本地文件支持 FLAC、MP3、M4A、AAC、OGG、Opus、WAV，实际可播放编码取决于设备。
+
+0.12.9 新增云端存储连接、文件列表与上传入口，支持选择多个本地文件，查看上传进度与结果。
 
 0.12.8 修复高解析本地音乐仍使用旧播放路径的问题。Android 8.1 及以上的本地与
 在线播放共用浮点音频链路，并读取已有 FLAC 的响度信息，保留原始音频内容。
@@ -28,6 +31,13 @@
 允许访问音乐文件后，点击曲库中的“扫描音乐”导入收藏。
 同名 `.lrc` 文件和音频内已有的歌词标签都可以读取。
 默认歌单可导出至 `/storage/emulated/0/Music/听屿/默认歌单.m3u`。
+
+在“我的 → 设置 → 云端存储”选择连接方式，填写连接信息并启用。
+S3 兼容存储填写端点、桶名、区域和访问密钥，可设置目录前缀与公开访问地址；
+OpenList 填写服务器地址和云端目录，需要登录时再填写账号；
+HTTP 填写文件根地址，目录列表使用 `index.json`，上传需要服务器允许 HTTP PUT。
+连接后可从曲库的“云端文件”入口选择本地文件上传，也可以从本地歌曲菜单上传音乐。
+文件保留原始内容与文件名；遇到同名文件时会提示改名后上传。
 
 ## 构建
 
@@ -67,8 +77,9 @@ GitHub Actions 会运行单元测试、Lint 和 APK 构建。
 第三方组件保留各自许可证，来源、版本和修改说明见
 [第三方许可说明](android/THIRD_PARTY.md)。应用关于页可离线查看协议全文与第三方许可。
 
-ChunkSeal 为听屿集成提供 [专项 GPLv3 授权](licenses/ChunkSeal-Tingyu-Permission.md)，
-可供后续集成使用，主项目继续采用 GPL-3.0-only。该授权保留原版权，并给予 GPL
-版本的下游完整的修改、分发与复用权利。原项目声明见
+[ChunkSeal](https://github.com/kity-yolo/chunkseal-protocol) 使用 AGPL-3.0-only，
+其作者为 [听屿](https://github.com/qiuyuxc/tingyu) 提供了
+[GPLv3 集成授权](licenses/ChunkSeal-GPL-Permission.md)。按该授权分发的集成须保留
+版权声明、授权文件与 GPLv3 正文。原项目声明见
 [ChunkSeal NOTICE](licenses/ChunkSeal-NOTICE.txt)。
-关于页的「第三方致谢 → ChunkSeal v1」提供版权、专项授权与上游 AGPLv3 原文的离线查看入口。
+关于页的「第三方致谢 → ChunkSeal」可查看版权、集成授权、上游 AGPLv3 原文和对应仓库。

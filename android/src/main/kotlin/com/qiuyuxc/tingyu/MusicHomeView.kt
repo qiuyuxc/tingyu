@@ -455,6 +455,16 @@ internal class MusicHomeView(
                 }
             }
             Column {
+                MusicSectionTitle("云端文件")
+                HomeLibraryTile(
+                    "自己的存储",
+                    if (Cloud.enabled(act) && Cloud.configured(act)) Cloud.description(act)
+                    else "连接存储，上传本地文件",
+                    R.drawable.ic_ent_cloud,
+                    Modifier.fillMaxWidth(),
+                ) { act.openCloudFiles() }
+            }
+            Column {
                 MusicSectionTitle("平台曲库")
                 MusicPlatform.entries.forEach { source ->
                     val account = accounts.firstOrNull { it.platform == source }

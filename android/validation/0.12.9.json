@@ -1,0 +1,46 @@
+{
+  "version": "0.12.9",
+  "version_code": 26,
+  "application_id": "com.qiuyuxc.tingyu.opensource",
+  "debuggable": false,
+  "signature_verified": true,
+  "certificate_sha256": "884b58562d8a7cdf46f630c5c65ced9135163336bbfffec3b4a9548f7ea32cbc",
+  "zip_crc_verified": true,
+  "native_libraries_aligned_16kb": [
+    "lib/arm64-v8a/libandroidx.graphics.path.so",
+    "lib/armeabi-v7a/libandroidx.graphics.path.so",
+    "lib/x86/libandroidx.graphics.path.so",
+    "lib/x86_64/libandroidx.graphics.path.so"
+  ],
+  "license_assets_verified": 17,
+  "launcher_pngs_verified": 10,
+  "file_upload_code_present": true,
+  "public_feature_scope_verified": true,
+  "project_license": "GPL-3.0-only",
+  "apk": {
+    "file": "tingyu-0.12.9.apk",
+    "bytes": 11142953,
+    "sha256": "472b0bbe67efc62c3351983fe1b31bdd65272938724d4782ae9e840ae0f8c0d3"
+  },
+  "unit_tests": {
+    "tests": 215,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "file_storage_tests": 13
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 102,
+    "debug_passed": true,
+    "release_vital_passed": true
+  },
+  "build_tasks": [
+    "testDebugUnitTest",
+    "lintDebug",
+    "assembleDebug",
+    "assembleRelease"
+  ],
+  "device_validation": "not run; no connected ADB device",
+  "real_cloud_validation": "not run; backend tests use local HTTP services"
+}

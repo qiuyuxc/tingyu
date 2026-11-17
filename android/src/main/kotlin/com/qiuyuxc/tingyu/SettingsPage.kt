@@ -126,13 +126,14 @@ class SettingsPage(private val act: MainActivity) {
         val title = when (section) {
             "preferences" -> "设置"; "accounts" -> "平台账号"; "appearance" -> "外观"
             "playback" -> "播放"; "storage", "directories" -> "音乐与文件"
-            "cache" -> "缓存管理"; else -> "关于"
+            "cloud" -> "云端存储"; "cache" -> "缓存管理"; else -> "关于"
         }
         heading.set(title, true, { handleBack() }, null, null)
         body.addView(when (section) {
             "preferences" -> settingsIndex(); "accounts" -> PlatformAccountsView(act)
             "appearance" -> appearanceSettings(); "playback" -> playbackSettings()
-            "storage", "directories" -> directorySettings(); "cache" -> cacheSettings()
+            "storage", "directories" -> directorySettings(); "cloud" -> CloudSettingsView(act).build()
+            "cache" -> cacheSettings()
             else -> AboutPage.create(act, versionName())
         })
         return root
@@ -142,7 +143,10 @@ class SettingsPage(private val act: MainActivity) {
         listOf(
             "账号" to listOf(Triple("平台账号", "登录、会员与默认音质", "accounts")),
             "偏好" to listOf(Triple("外观", "主题与配色", "appearance"), Triple("播放", "播放页背景", "playback")),
-            "音乐库" to listOf(Triple("音乐与文件", "本地目录与歌单导出", "directories")),
+            "音乐库" to listOf(
+                Triple("音乐与文件", "本地目录与歌单导出", "directories"),
+                Triple("云端存储", "S3、OpenList 与 HTTP 连接", "cloud"),
+            ),
             "应用" to listOf(Triple("缓存管理", "封面缓存与清理", "cache"), Triple("关于", "版本、开源协议与致谢", "about")),
         ).forEach { (label, items) ->
             addView(group(label).apply {

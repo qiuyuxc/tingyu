@@ -14,16 +14,17 @@ https://www.gnu.org/licenses/gpl-3.0.txt.
 
 # ChunkSeal acknowledgement and permission
 
-The About page provides an offline acknowledgement for the ChunkSeal v1 protocol
-project and its additional GPLv3 permission for Tingyu. ChunkSeal retains
-`Copyright (C) 2026 ChunkSeal contributors` and its upstream `AGPL-3.0-only`
-notice. The Tingyu project remains `GPL-3.0-only`.
+The About page acknowledges [ChunkSeal](https://github.com/kity-yolo/chunkseal-protocol),
+licensed under `AGPL-3.0-only` with `Copyright (C) 2026 ChunkSeal contributors`.
+Its [integration permission](../licenses/ChunkSeal-GPL-Permission.md) permits covered
+original material to be integrated into [Tingyu](https://github.com/qiuyuxc/tingyu)
+and distributed as part of that program under `GPL-3.0-only`.
 
 The About page includes `assets/licenses/ChunkSeal-NOTICE.txt`,
-`assets/licenses/ChunkSeal-Tingyu-Permission.txt` and the unmodified upstream
+`assets/licenses/ChunkSeal-GPL-Permission.txt` and the unmodified upstream
 license in `assets/licenses/AGPL-3.0.txt`. The notice and permission match
-the copies in the repository's `licenses/` directory. The permission is
-recorded for future integration into the public edition.
+the copies in the repository's `licenses/` directory. The permission identifies both
+source repositories and is recorded for future integration into the public edition.
 
 # AndroidX, Kotlin and Java compatibility
 

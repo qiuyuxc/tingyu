@@ -1,7 +1,9 @@
 package com.qiuyuxc.tingyu
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Typeface
+import android.net.Uri
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
@@ -15,6 +17,8 @@ internal object AboutPage {
         val title: String,
         val summary: String,
         val files: List<String>,
+        val repository: String? = null,
+        val integrationRepository: String? = null,
     )
 
     private val projectLicense =
@@ -22,14 +26,17 @@ internal object AboutPage {
             "GNU GPLv3",
             "听屿 · GPL-3.0-only",
             listOf("Project-NOTICE.txt", "GPL-3.0.txt"),
+            repository = "https://github.com/qiuyuxc/tingyu",
         )
 
     private val thirdPartyLicenses =
         listOf(
             LicenseEntry(
-                "ChunkSeal v1",
-                "协议项目致谢 · AGPLv3 与听屿专项授权",
-                listOf("ChunkSeal-NOTICE.txt", "ChunkSeal-Tingyu-Permission.txt", "AGPL-3.0.txt"),
+                "ChunkSeal",
+                "AGPLv3 · 听屿集成授权（GPLv3）",
+                listOf("ChunkSeal-NOTICE.txt", "ChunkSeal-GPL-Permission.txt", "AGPL-3.0.txt"),
+                repository = "https://github.com/kity-yolo/chunkseal-protocol",
+                integrationRepository = "https://github.com/qiuyuxc/tingyu",
             ),
             LicenseEntry("MIUIX 0.9.4", "界面组件 · Apache 2.0", listOf("Miuix.txt")),
             LicenseEntry(
@@ -64,6 +71,7 @@ internal object AboutPage {
                     addView(description(context, "自己的曲库", "播放本地与在线音乐，收藏歌曲、整理歌单，查看听歌记录与排行。"))
                     addView(description(context, "发现音乐", "连接网易云音乐与酷狗概念版，听推荐、找歌曲，同步歌单，也可以参与歌曲评论。"))
                     addView(description(context, "本地音乐", "读取音频标签、专辑封面与本地歌词，将收藏导出为 M3U 歌单。"))
+                    addView(description(context, "云端文件", "连接 S3、OpenList 或 HTTP 存储，上传本地音乐与文件，查看自己的云端目录。"))
                 }
             )
             addView(
@@ -177,7 +185,22 @@ internal object AboutPage {
             }
         val content = UI.column(context)
         content.addView(UI.muted(context, entry.summary).apply { setPadding(0, 0, 0, UI.dp(16)) })
+        entry.repository?.let { content.addView(repositoryLink(context, "项目仓库", it)) }
+        entry.integrationRepository?.let {
+            content.addView(repositoryLink(context, "集成授权对应仓库", it))
+        }
         content.addView(UI.body(context, text).apply { setTextIsSelectable(true) })
         Sheet.of(context, entry.title).size(SheetSize.EXPANDED).content(content).show()
     }
+
+    private fun repositoryLink(context: Context, title: String, url: String): View =
+        MiuixPreferenceView(context, title, url) {
+            try {
+                context.startActivity(
+                    Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            } catch (_: android.content.ActivityNotFoundException) {
+                Toast.makeText(context, "未找到可以打开链接的应用", Toast.LENGTH_SHORT).show()
+            }
+        }
 }
